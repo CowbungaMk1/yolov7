@@ -35,6 +35,13 @@ from utils.plots import plot_images, plot_labels, plot_results, plot_evolution
 from utils.torch_utils import ModelEMA, select_device, intersect_dicts, torch_distributed_zero_first, is_parallel
 from utils.wandb_logging.wandb_utils import WandbLogger, check_wandb_resume
 
+
+"""
+use bellow to train with humv dataset
+python3 train.py --workers 4 --device 0 --batch-size 8 --data data/humv.yaml --img 640 640 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p5.yaml
+"""
+
+
 logger = logging.getLogger(__name__)
 
 
