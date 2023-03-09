@@ -5,8 +5,10 @@
 *.bmp
 *.tif
 *.tiff
+*.JPG
 *.heic
-
+!Vermont_sim_data2/*
+!humveedata/*
 *.JPEG
 *.PNG
 *.BMP
