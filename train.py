@@ -38,6 +38,11 @@ from utils.wandb_logging.wandb_utils import WandbLogger, check_wandb_resume
 
 """
 use bellow to train with humv dataset
+
+source venv/bin/activate
+
+
+
 python3 train.py --workers 4 --device 0 --batch-size 8 --data data/humv.yaml --img 640 640 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p5.yaml
 
 python3 train.py --workers 8 --device 0 --batch-size 8 --data data/humv.yaml --img 1280 1280 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p6.yaml --epochs 69
@@ -479,8 +484,8 @@ def train(hyp, opt, device, tb_writer=None):
                     torch.save(ckpt, wdir / 'best_{:03d}.pt'.format(epoch))
                 if epoch == 0:
                     torch.save(ckpt, wdir / 'epoch_{:03d}.pt'.format(epoch))
-                elif ((epoch+1) % 25) == 0:
-                    torch.save(ckpt, wdir / 'epoch_{:03d}.pt'.format(epoch))
+                # elif ((epoch+1) % 25) == 0:
+                #     torch.save(ckpt, wdir / 'epoch_{:03d}.pt'.format(epoch))
                 elif epoch >= (epochs-5):
                     torch.save(ckpt, wdir / 'epoch_{:03d}.pt'.format(epoch))
                 if wandb_logger.wandb:
