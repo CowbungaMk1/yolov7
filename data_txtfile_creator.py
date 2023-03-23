@@ -1,11 +1,11 @@
 import os
 import re
 
-dir_path = './humveedata/images/val'
-writepth = './images/val'
-files = [f for f in os.listdir(dir_path) if f.endswith(".jpg")]
+dir_path = './humveedata/images/test'
+writepth = './images/test'
+files = [f for f in os.listdir(dir_path) if f.endswith((".JPG",".jpg",".png",".tif"))]
 
-outfile = open("val.txt", "w+")
+outfile = open("test.txt", "w+")
 
 for i, file in enumerate(files):
     outfile.write(writepth + '/' + file)
