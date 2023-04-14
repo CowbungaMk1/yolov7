@@ -81,7 +81,7 @@ def main():
 
     for i in range(len(X_valid)):
 
-        folder_name = [os.path.join(labels_dir, y_valid[i]), os.path.join(results_dir, 'val', 'labels',sourcefolder)]
+        folder_name = [os.path.join(labels_dir, y_valid[i]), os.path.join(results_dir, 'labels', 'val',sourcefolder)]
         os.makedirs(folder_name[1], exist_ok=True)
         shutil.copy(folder_name[0],folder_name[1])
 
