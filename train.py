@@ -42,10 +42,15 @@ use bellow to train with humv dataset
 source venv/bin/activate
 
 
-
+~humvve
 python3 train.py --workers 4 --device 0 --batch-size 8 --data data/humv.yaml --img 640 640 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p5.yaml
 
 python3 train.py --workers 8 --device 0 --batch-size 8 --data data/humv.yaml --img 1280 1280 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p6.yaml --epochs 69
+
+~satellite
+python3 train.py --workers 4 --device 0 --batch-size 8 --data data/sat.yaml --img 640 640 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p5.yaml --epochs 300
+
+python3 train.py --workers 2 --device 0 --batch-size 2 --data data/sat.yaml --img 1280 1280 --cfg cfg/training/yolov7.yaml --weights '' --name yolov7 --hyp data/hyp.scratch.p5.yaml --epochs 300
 
 
 """
@@ -546,7 +551,7 @@ if __name__ == '__main__':
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
     parser.add_argument('--data', type=str, default='data/coco.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='data/hyp.scratch.p5.yaml', help='hyperparameters path')
-    parser.add_argument('--epochs', type=int, default=300)
+    parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--batch-size', type=int, default=16, help='total batch size for all GPUs')
     parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='[train, test] image sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')

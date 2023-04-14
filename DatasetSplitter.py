@@ -8,7 +8,12 @@ from sklearn.model_selection import train_test_split
 parser = argparse.ArgumentParser(description='test program')
 parser.add_argument('-init', '--settings', help='print the supplied argument.', nargs='*')
 args = parser.parse_args()
+"""
 
+
+
+
+"""
 
 def main():
     if len(args.settings) < 3:
@@ -21,9 +26,13 @@ def main():
         labels_dir = args.settings[0]
         frames_dir = args.settings[1]
         results_dir = args.settings[2]
+
         print(frames_dir, labels_dir, results_dir)
 
     # sorting the frames and labels and saving list of names and directories
+
+
+
     frames = sorted(os.listdir(frames_dir))
     labels = sorted(os.listdir(labels_dir))
 
@@ -43,22 +52,43 @@ def main():
     # print(X_train)
 
     # Saving the splits intro their respective directors
+    sourcefolder = frames_dir.split('/')[len(frames_dir.split('/'))-1]
+    print(sourcefolder)
 
     for i in range(len(X_train)):
 
-        shutil.copy(os.path.join(labels_dir, y_train[i]), os.path.join(results_dir, 'labels', 'train'))
-        shutil.copy(os.path.join(frames_dir, X_train[i]), os.path.join(results_dir, 'images', 'train'))
+        folder_name = [os.path.join(labels_dir, y_train[i]), os.path.join(results_dir, 'labels', 'train',sourcefolder)]
+        os.makedirs(folder_name[1], exist_ok=True) 
+        shutil.copy(folder_name[0],folder_name[1])
+
+        folder_name = [os.path.join(frames_dir, X_train[i]), os.path.join(results_dir, 'images', 'train',sourcefolder)]
+        os.makedirs(folder_name[1], exist_ok=True) 
+
+        shutil.copy(folder_name[0],folder_name[1])
 
 
     for i in range(len(X_test)):
 
+        folder_name = [os.path.join(labels_dir, y_test[i]), os.path.join(results_dir, 'labels', 'test',sourcefolder)]
+        os.makedirs(folder_name[1], exist_ok=True) 
 
-        shutil.copy(os.path.join(frames_dir, X_test[i]), os.path.join(results_dir, 'images', 'test'))
+        shutil.copy(folder_name[0],folder_name[1])
+
+        folder_name = [os.path.join(frames_dir, X_test[i]), os.path.join(results_dir, 'images', 'test',sourcefolder)]
+        os.makedirs(folder_name[1], exist_ok=True)
+        shutil.copy(folder_name[0],folder_name[1])
+
 
     for i in range(len(X_valid)):
-        shutil.copy(os.path.join(labels_dir, y_valid[i]), os.path.join(results_dir, 'labels', 'val'))
 
-        shutil.copy(os.path.join(frames_dir, X_valid[i]), os.path.join(results_dir, 'images', 'val'))
+        folder_name = [os.path.join(labels_dir, y_valid[i]), os.path.join(results_dir, 'val', 'labels',sourcefolder)]
+        os.makedirs(folder_name[1], exist_ok=True)
+        shutil.copy(folder_name[0],folder_name[1])
+
+
+        folder_name = [os.path.join(frames_dir, X_valid[i]), os.path.join(results_dir, 'images', 'val',sourcefolder)]
+        os.makedirs(folder_name[1], exist_ok=True)
+        shutil.copy(folder_name[0],folder_name[1])
 
 
 if __name__ == '__main__':
