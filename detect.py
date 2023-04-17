@@ -14,6 +14,11 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
+"""
+(venv) floyd@LoydVII-Alienware-Aurora-R6:~/Documents/GitHub/yolov7$ python3 detect.py --weights ./satwts/yolov712/weights/best.pt --source ./satellite/cropped_300_sbcm/
+
+"""
+
 
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz, trace = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, not opt.no_trace
