@@ -14,9 +14,19 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
+# Converts from yolov7 to yolov4, probably wasts time but we will see -IP
+def pred_2_list(prediction):
+    myorder = [5, 0, 1, 2, 3]
+    pred = prediction.tolist()
+    idx = 0
+    for vector in pred:
+
+        pred[idx] = [vector[i] for i in myorder]
+        idx +=1 
+    return pred
 
 
-def detect(weights,source,view_img=False,save_img=False,nosave = False,Device = 0):
+def detect(weights,source,view_img=False,save_img=False,nosave = False,device = '0'):
 
     # source, weights, view_img, = opt.source, opt.weights, opt.view_img
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -78,18 +88,29 @@ def detect(weights,source,view_img=False,save_img=False,nosave = False,Device = 
             old_img_h = img.shape[2]
             old_img_w = img.shape[3]
             for i in range(3):
-                model(img, augment=opt.augment)[0]
+                model(img, augment=True)[0]
 
         # Inference
         with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
-            pred = model(img, augment=opt.augment)[0]
+            pred = model(img, augment=True)[0]
 
         # Apply NMS
-        pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms)
+        pred = non_max_suppression(pred, .5, .45, agnostic='store_true')
+        # print(pred.size)
+        pred = pred[0]
+        
+        pred=pred.detach().cpu().numpy()
+        pred = pred_2_list(pred)
         print(pred)
    
 
 if __name__ == '__main__':
+
+    # parser = argparse.ArgumentParser()
+
+    # parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
+    # parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --class 0, or --class 0 2 3')
+    # opt = parser.parse_args()
 
     weights = './satwts/yolov712/weights/best.pt'
     source = './satellite/cropped_300_sbcm/'

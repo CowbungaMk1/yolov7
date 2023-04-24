@@ -117,13 +117,12 @@ class VectorFormatter:
         self.true_match = []
 
     # For detector derived data
-    def drone_initialize(self, results, file):
+    def cnn_initialization(self, results, dimensions):
 
         self.pos_x = []
         self.pos_y = []
-        photo = Image.open(file[:len(file) - 3] + 'JPG')
-        self.shape_y = photo.height
-        self.shape_x = photo.width
+        self.shape_y = dimensions[0]
+        self.shape_x = dimensions[1]
 
         self.feature_class = []
 
@@ -132,25 +131,25 @@ class VectorFormatter:
             self.features.append(results[i])
             V = results[i]
 
-            if V[0] == 'Building':
+            if V[0] == float(0):   # Building
                 self.feature_class.append(0.0)
-            if V[0] == 'Water':
+            if V[0] == float(1):    # 'Water':
                 self.feature_class.append(1.0)
-            if V[0] == 'Intersection':
+            if V[0] == float(2): # 'Intersection':
                 self.feature_class.append(2.0)
-            if V[0] == 'Rock Pile':
+            if V[0] == float(3): #'Rock Pile':
                 self.feature_class.append(3.0)
-            if V[0] == 'Tree Clump':
+            if V[0] == float(4): #'Tree Clump':
                 self.feature_class.append(4.0)
-            if V[0] == 'Tree Opening':
+            if V[0] == float(5): # 'Tree Opening':
                 self.feature_class.append(5.0)
-            if V[0] == 'Humvee':
+            if V[0] == float(6): #'Humvee':
                 self.feature_class.append(6.0)
 
-            x_min = V[2][0]  # Reading from detection output, Finding objects x and y dimensions
-            y_min = V[2][1]
-            x_max = V[2][2]
-            y_max = V[2][3]
+            x_min = V[1]  # Reading from detection output, Finding objects x and y dimensions
+            y_min = V[2]
+            x_max = V[3]
+            y_max = V[4]
 
             center_x = (x_min + (x_max - x_min) / 2) / self.shape_x
             center_y = (y_min + (y_max - y_min) / 2) / self.shape_y
@@ -159,14 +158,14 @@ class VectorFormatter:
                 self.x_humvee.append(center_x)
                 self.y_humvee.append(center_y)
 
-            photo = photo.convert('RGB')  # need to calculate brightness of centroid, must be converted to RGB first
-            # coordinates of the pixel
+            # photo = photo.convert('RGB')  # need to calculate brightness of centroid, must be converted to RGB first
+            # # coordinates of the pixel
 
-            X, Y = int(center_x * self.shape_x), int(center_y * self.shape_y)
-            # Get RGB
-            pixelRGB = photo.getpixel((X, Y))
-            R, G, B = pixelRGB
-            self.brightness.append(sum([R, G, B]) / 3)  # 0 is dark (black) and 255 is bright (white)
+            # X, Y = int(center_x * self.shape_x), int(center_y * self.shape_y)
+            # # Get RGB
+            # pixelRGB = photo.getpixel((X, Y))
+            # R, G, B = pixelRGB
+            # self.brightness.append(sum([R, G, B]) / 3)  # 0 is dark (black) and 255 is bright (white)
 
             self.pos_x.append(center_x)  # Center in percents
             self.pos_y.append(center_y)
@@ -246,6 +245,7 @@ class VectorFormatter:
             for j in range(len(idx_neighbor)):
                 pos_x_closest.append(self.pos_x[idx_neighbor[j]])
                 pos_y_closest.append(self.pos_y[idx_neighbor[j]])
+             
                 feature_closest_list.append(self.feature_class[idx_neighbor[j]])
 
             self.feature_closest.append(feature_closest_list)
