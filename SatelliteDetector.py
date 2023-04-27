@@ -25,7 +25,10 @@ def pred_2_list(prediction):
         idx +=1 
     return pred
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 def detect(weights,source,view_img=False,save_img=False,nosave = False,device = '0'):
 
     # source, weights, view_img, = opt.source, opt.weights, opt.view_img
@@ -116,5 +119,5 @@ if __name__ == '__main__':
     source = './satellite/cropped_300_sbcm/'
     with torch.no_grad():
      
-        detect(weights=weights, source = source,view_img=True)
+        detect(weights=weights, source = source,view_img=True,device='cpu')
 
