@@ -86,6 +86,7 @@ def binning(D, min_ind_dist, x_d):  # number of bins, see fig 13
         H.append('{0:04b}'.format(15))
     return H  # vectors of bin numbers in binary and using 8 digits
 
+
 # Data collection from detected features
 class VectorFormatter:
 
@@ -115,6 +116,7 @@ class VectorFormatter:
         self.base_y = []
         self.feature_closest = []
         self.true_match = []
+        self.humvee_detected = False
 
     # For detector derived data
     def cnn_initialization(self, results, dimensions):
@@ -131,20 +133,21 @@ class VectorFormatter:
             self.features.append(results[i])
             V = results[i]
 
-            if V[0] == float(0):   # Building
+            if V[0] == float(0):  # Building
                 self.feature_class.append(0.0)
-            if V[0] == float(1):    # 'Water':
+            if V[0] == float(1):  # 'Water':
                 self.feature_class.append(1.0)
-            if V[0] == float(2): # 'Intersection':
+            if V[0] == float(2):  # 'Intersection':
                 self.feature_class.append(2.0)
-            if V[0] == float(3): #'Rock Pile':
+            if V[0] == float(3):  # 'Rock Pile':
                 self.feature_class.append(3.0)
-            if V[0] == float(4): #'Tree Clump':
+            if V[0] == float(4):  # 'Tree Clump':
                 self.feature_class.append(4.0)
-            if V[0] == float(5): # 'Tree Opening':
+            if V[0] == float(5):  # 'Tree Opening':
                 self.feature_class.append(5.0)
-            if V[0] == float(6): #'Humvee':
+            if V[0] == float(6):  # 'Humvee':
                 self.feature_class.append(6.0)
+                self.humvee_detected = True
 
             x_min = V[1]  # Reading from detection output, Finding objects x and y dimensions
             y_min = V[2]
@@ -154,7 +157,7 @@ class VectorFormatter:
             center_x = (x_min + (x_max - x_min) / 2) / self.shape_x
             center_y = (y_min + (y_max - y_min) / 2) / self.shape_y
 
-            if V[0] == 'Humvee':
+            if V[0] == float(6):
                 self.x_humvee.append(center_x)
                 self.y_humvee.append(center_y)
 
@@ -245,7 +248,7 @@ class VectorFormatter:
             for j in range(len(idx_neighbor)):
                 pos_x_closest.append(self.pos_x[idx_neighbor[j]])
                 pos_y_closest.append(self.pos_y[idx_neighbor[j]])
-             
+
                 feature_closest_list.append(self.feature_class[idx_neighbor[j]])
 
             self.feature_closest.append(feature_closest_list)
@@ -292,7 +295,7 @@ class BinCompletion:
         feature = feature_class[num]
         Vector.append('{0:04b}'.format(int(feature)))  # first four digits represent feature class
 
-        for j in range(len(features_closest[num])-1):
+        for j in range(len(features_closest[num]) - 1):
             Vector.append('{0:04b}'.format(int(features_closest[num][j])))
 
         for j in range(len(features_closest[num])):

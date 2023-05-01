@@ -38,11 +38,8 @@ def hamming2(s1, s2):
 def main():
     sat_crop = '..\Vermont_sim_data3\ cropped_600\ '
 
-
-
     # Set up for Vector Construction
 
-  
     cropped_image_vector = []
     cropped_true_match = []
     cropped_imdist = []
@@ -56,7 +53,7 @@ def main():
 
         satellite.yolo_initialize(label_name, frame_name)
 
-        if len(satellite.p_x) > neighbor :
+        if len(satellite.p_x) > neighbor:
             satellite.k_d_tree_test(neighbor)
             cropped_true_match.append(satellite.true_match)
             cropped_imdist.append(satellite.im_dist)
@@ -135,7 +132,6 @@ def main():
         average_time = sum(times) / len(times)
         fps = 1 / average_time
         if (tp != 0 or fp != 0):
-
             print(neighbor, threshold, precision, recall, tp, fp, fps)
 
 
