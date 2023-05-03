@@ -117,6 +117,7 @@ class VectorFormatter:
         self.feature_closest = []
         self.true_match = []
         self.humvee_detected = False
+        self.feature_vectors = []
 
     # For detector derived data
     def cnn_initialization(self, results, dimensions):
