@@ -92,6 +92,8 @@ class VectorFormatter:
 
     def __init__(self, name):
         self.name = name
+        # self.pos_in_sat = np.empty(shape=[0,2])
+        self.pos_in_sat = []
 
         self.features = []
         self.feature_class = []
