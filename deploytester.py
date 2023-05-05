@@ -131,6 +131,8 @@ def main():
 
         average_time = sum(times) / len(times)
         fps = 1 / average_time
+
+
         if (tp != 0 or fp != 0):
             print(neighbor, threshold, precision, recall, tp, fp, fps)
 
