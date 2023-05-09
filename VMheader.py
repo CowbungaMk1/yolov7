@@ -292,6 +292,8 @@ class BinCompletion:
     def bin_initialize(self, indiv_dist, indiv_angle, bw_dist, bw_angle):
         self.min_ind_dist, prob, self.x_d, im_dist, xx_d = find_mins(indiv_dist, bw_dist)
         self.min_ind_angle, prob_angle, self.x_d_angle, im_angle, xx_d_angle = find_mins(indiv_angle, bw_angle)
+        print('number of bins dist',len(self.min_ind_dist))
+        print('number of bins angle',len(self.min_ind_angle))
 
     def vector_def(self, num, feature_class, indiv_dist, indiv_angle, features_closest):
         Vector = []

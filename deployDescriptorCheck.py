@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import argparse
 
 # Libraries for deploying CNN
 import numpy as np
@@ -96,11 +95,11 @@ def pred_2_list(pred):
 
 
 def main():
-    humve_source, humve_weights, neighbor =  opt.source, opt.weights, opt.descriptor_len
-
     # Paths for satellite weights and images
     weights = './satwts/yolov712/weights/best.pt'
     source = './satellite/cropped_300_scres/'
+
+    # source = './satellite/cropped_300_sbts/'
     # source = './vermontsim_5_translation/cropped_600'
 
     # Storing values across all reviewed images (probably can go) -IP
@@ -164,15 +163,16 @@ def main():
             pred = model(img, augment=True)[0]
 
         # Apply NMS, selecting only the classes that we want to use.
-        pred = non_max_suppression(pred, .3, .3, classes=(0, 2), agnostic='store_true')
+        pred = non_max_suppression(pred, .5, .45, classes=(0, 2), agnostic='store_true')
 
         pred = pred[0]
 
         pred = pred.detach().cpu().numpy()
         pred = pred_2_list(pred)
-        pred = scale_coords(img.shape[2:], pred, im0s.shape) # resscales image to origonal size
+        pred = scale_coords(img.shape[2:], pred, im0s.shape)
 
-        satellite_obj[sat_name].cnn_initialization(pred, im0s.shape)
+        satellite_obj[sat_name].cnn_initialization(pred, [old_img_h, old_img_w])
+        neighbor = 5
 
         if len(satellite_obj[sat_name].p_x) > neighbor:
             satellite_obj[sat_name].k_d_tree_test(neighbor)
@@ -183,7 +183,7 @@ def main():
 
     # Performing binning process. Creates histogram of distribution for max vector definition effectiveness and stuff
     binn = BinCompletion('binn')
-    binn.bin_initialize(flatten(cropped_imdist), flatten(cropped_imangle), 1.6, .8)
+    binn.bin_initialize(flatten(cropped_imdist), flatten(cropped_imangle), .8, .8)
 
     # Generating the feature descriptors/vectors for each sat image
     for name in satellite_obj:
@@ -208,10 +208,11 @@ def main():
     # weights = './HumWts/yolov7_humvee6403/weights/best.pt'
 
     # source = './sbtestimages/' # sb tester
-    source = './TrialRunIPDVermont/images_from_drone/'
+    # source = './TrialRunIPDVermont/images_from_drone/'
 
-    # humve_weights = './satwts/yolov712/weights/best.pt'
-    # humve_source = './vermontsim_5_translation/cropped_800'
+    weights = './satwts/yolov712/weights/best.pt'
+    # source = './vermontsim_5_translation/cropped_800'
+    source = './satellite/cropped_300_scres/'
 
     # Initialize
     set_logging()
@@ -219,7 +220,7 @@ def main():
     half = device.type != 'cpu'  # half precision only supported on CUDA
 
     # Load model
-    model = attempt_load(humve_weights, map_location=device)  # load FP32 model
+    model = attempt_load(weights, map_location=device)  # load FP32 model
     stride = int(model.stride.max())  # model stride
     imgsz = 640  # Humvee
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
@@ -234,9 +235,9 @@ def main():
     if webcam:
         view_img = check_imshow()
         cudnn.benchmark = True  # set True to speed up constant image size inference
-        dataset = LoadStreams(humve_source, img_size=imgsz, stride=stride)
+        dataset = LoadStreams(source, img_size=imgsz, stride=stride)
     else:
-        dataset = LoadImages(humve_source, img_size=imgsz, stride=stride)
+        dataset = LoadImages(source, img_size=imgsz, stride=stride)
 
     # Get names and colors
     names = model.module.names if hasattr(model, 'module') else model.names
@@ -248,7 +249,7 @@ def main():
 
     drone_file_idx = 0
     for path, img, im0s, vid_cap in dataset:
-
+        drone_imgz_size = im0s.shape
         drone = VectorFormatter('drone')
 
         img = torch.from_numpy(img).to(device)
@@ -273,7 +274,7 @@ def main():
         humvee_pred = scale_coords(img.shape[2:], humvee_pred, im0s.shape)
         ##############insert if statement for if a humvee is detected
         if not len(humvee_pred):
-            pred = non_max_suppression(pred, .3, .3, classes=(0, 1, 2), agnostic='store_true')
+            pred = non_max_suppression(pred, .5, .45, classes=(0, 1, 2), agnostic='store_true')
             # print(pred.size)
             pred = pred[0]
 
@@ -282,7 +283,7 @@ def main():
 
             pred = scale_coords(img.shape[2:], pred, im0s.shape)
 
-            drone.cnn_initialization(pred, im0s.shape)
+            drone.cnn_initialization(pred, [old_img_h, old_img_w])
 
             vector_drone = []
 
@@ -333,7 +334,7 @@ def main():
 
                 satimg = cv2.imread(satimgpath)
                 # print(matched_idx)
-                print(path)
+                # print(path)
 
                 for i in matched_idx:
 
@@ -352,12 +353,12 @@ def main():
                                    (int(satellite_obj[i[1]].pos_in_sat[i[2], 1]),
                                     int(satellite_obj[i[1]].pos_in_sat[i[2], 0])),
                                    radius=30, color=(i[0] * 255 / len(matched_idx), 0, 255 -(i[0] * 255 / len(matched_idx))), thickness=-1)
-
-                cv2.imwrite('./results/drone{}.png'.format(drone_file_idx), im0s)
+    
+                # cv2.imwrite('./results/drone{}.png'.format(drone_file_idx), im0s)
                 cv2.imwrite('./results/sat{}.png'.format(drone_file_idx), satimg)
                 drone_file_idx +=1
-                # cv2.imshow('69', im0s)
-                # cv2.waitKey(1)  # 1 millisecond
+                cv2.imshow('69', im0s)
+                cv2.waitKey(1)  # 1 millisecond
                 # cv2.imshow('69', satimg)
                 # cv2.waitKey(1)  # 1 millisecond
 
@@ -374,12 +375,5 @@ def main():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov7.pt', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default='inference/images', help='source')  # file/folder, 0 for webcam
-    parser.add_argument('--descriptor_len', type=int, default=7, help='how many features min detected and length of descriptor')
-
-    opt = parser.parse_args()
-
     with torch.no_grad():
         main()
