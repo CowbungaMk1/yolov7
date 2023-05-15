@@ -62,7 +62,7 @@ def acrop_2_sat_pos(positions, path_image, shift):
     y_change = int(path_image[2])
     x_change = int(path_image[-1].split('.')[0])
 
-    positions = positions + [x_change * shift, y_change * shift]
+    positions = positions + [y_change * shift, x_change * shift]
 
     return positions
 
@@ -96,12 +96,12 @@ def pred_2_list(pred):
 
 
 def main():
-    humve_source, humve_weights, neighbor =  opt.source, opt.weights, opt.descriptor_len
+    humve_source, humve_weights, neighbor, source, weights, sat_image =  opt.source, opt.weights, opt.descriptor_len, opt.sat_source, opt.sat_weights, opt.sat_image
 
     # Paths for satellite weights and images
-    weights = './satwts/yolov712/weights/best.pt'
-    source = './satellite/cropped_300_scres/'
-    # source = './vermontsim_5_translation/cropped_600'
+    # weights = './satwts/yolov712/weights/best.pt'
+    # source = './satellite/cropped_300_scres/'
+    # # source = './vermontsim_5_translation/cropped_600'
 
     # Storing values across all reviewed images (probably can go) -IP
     # These are used to perform the binning process across the whole thing
@@ -164,7 +164,7 @@ def main():
             pred = model(img, augment=True)[0]
 
         # Apply NMS, selecting only the classes that we want to use.
-        pred = non_max_suppression(pred, .3, .3, classes=(0, 2), agnostic='store_true')
+        pred = non_max_suppression(pred, .5, .3, classes=(0,2), agnostic='store_true')
 
         pred = pred[0]
 
@@ -183,7 +183,7 @@ def main():
 
     # Performing binning process. Creates histogram of distribution for max vector definition effectiveness and stuff
     binn = BinCompletion('binn')
-    binn.bin_initialize(flatten(cropped_imdist), flatten(cropped_imangle), 1.6, .8)
+    binn.bin_initialize(flatten(cropped_imdist), flatten(cropped_imangle), .8, .8)
 
     # Generating the feature descriptors/vectors for each sat image
     for name in satellite_obj:
@@ -273,7 +273,7 @@ def main():
         humvee_pred = scale_coords(img.shape[2:], humvee_pred, im0s.shape)
         ##############insert if statement for if a humvee is detected
         if not len(humvee_pred):
-            pred = non_max_suppression(pred, .3, .3, classes=(0, 1, 2), agnostic='store_true')
+            pred = non_max_suppression(pred, .5, .3, classes=(0,  2), agnostic='store_true')
             # print(pred.size)
             pred = pred[0]
 
@@ -329,7 +329,7 @@ def main():
                 # satimgpath = './vermontjpg2.JPG'
 
                 # satimgpath = './lebelingtime/9-1-2021_crop_testsite.png'
-                satimgpath = './lebelingtime/9-1-2021_crop_residential.png'
+                satimgpath = sat_image
 
                 satimg = cv2.imread(satimgpath)
                 # print(matched_idx)
@@ -341,20 +341,20 @@ def main():
 
                         pos_temp = aflattenerthingy(satellite_obj[i[1]].p_x, satellite_obj[i[1]].p_y)
 
-                        satellite_obj[i[1]].pos_in_sat = np.copy(acrop_2_sat_pos(pos_temp, i[1], shift=50))
+                        satellite_obj[i[1]].pos_in_sat = np.copy(acrop_2_sat_pos(pos_temp, i[1], shift=60)) #60 if sb, 350 if vmt
                         print(i[1])
                         print(int(drone.pos_in_sat[i[0], 1]), int(drone.pos_in_sat[i[0], 0]))
                         print(int(satellite_obj[i[1]].pos_in_sat[i[2], 1]), int(satellite_obj[i[1]].pos_in_sat[i[2], 0]))
 
-                        cv2.circle(im0s, (int(drone.pos_in_sat[i[0], 1]), int(drone.pos_in_sat[i[0], 0])),
+                        cv2.circle(im0s, (int(drone.pos_in_sat[i[0], 0]), int(drone.pos_in_sat[i[0], 1])),
                                    radius=10, color=(i[0] * 255 / len(matched_idx), 0, 255 -(i[0] * 255 / len(matched_idx))), thickness=4)
                         cv2.circle(satimg,
-                                   (int(satellite_obj[i[1]].pos_in_sat[i[2], 1]),
-                                    int(satellite_obj[i[1]].pos_in_sat[i[2], 0])),
-                                   radius=30, color=(i[0] * 255 / len(matched_idx), 0, 255 -(i[0] * 255 / len(matched_idx))), thickness=-1)
+                                   (int(satellite_obj[i[1]].pos_in_sat[i[2], 0]),
+                                    int(satellite_obj[i[1]].pos_in_sat[i[2], 1])),
+                                   radius=10, color=(i[0] * 255 / len(matched_idx), 0, 255 -(i[0] * 255 / len(matched_idx))), thickness=-4)
 
-                cv2.imwrite('./results/drone{}.png'.format(drone_file_idx), im0s)
-                cv2.imwrite('./results/sat{}.png'.format(drone_file_idx), satimg)
+                cv2.imwrite(opt.results+'/drone{}.png'.format(drone_file_idx), im0s)
+                cv2.imwrite(opt.results+'/sat{}.png'.format(drone_file_idx), satimg)
                 drone_file_idx +=1
                 # cv2.imshow('69', im0s)
                 # cv2.waitKey(1)  # 1 millisecond
@@ -376,7 +376,13 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default='yolov7.pt', help='model.pt path(s)')
+    parser.add_argument('--sat_weights', nargs='+', type=str, default='yolov7.pt', help='model.pt path(s)')
+
     parser.add_argument('--source', type=str, default='inference/images', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--sat_source', type=str, default='inference/images', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--sat_image', type=str, default='inference/images', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--results', type=str, default='./results', help='results folder')  # file/folder, 0 for webcam
+
     parser.add_argument('--descriptor_len', type=int, default=7, help='how many features min detected and length of descriptor')
 
     opt = parser.parse_args()

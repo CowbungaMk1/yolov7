@@ -98,8 +98,7 @@ class VectorFormatter:
         self.features = []
         self.feature_class = []
 
-        self.pos_x = []
-        self.pos_y = []
+
         self.p_x = []
         self.p_y = []
         self.d_x = []
@@ -173,8 +172,7 @@ class VectorFormatter:
             # R, G, B = pixelRGB
             # self.brightness.append(sum([R, G, B]) / 3)  # 0 is dark (black) and 255 is bright (white)
 
-            self.pos_x.append(center_x)  # Center in percents
-            self.pos_y.append(center_y)
+
 
             self.p_x.append(center_x * self.shape_x)  # This the center in pixel coordinates
             self.p_y.append(center_y * self.shape_y)
@@ -203,8 +201,7 @@ class VectorFormatter:
 
                 # coordinates of the pixel
 
-                self.pos_x.append(float(V[1]))
-                self.pos_y.append(float(V[2]))
+
 
                 self.p_x.append(float(V[1]) * self.shape_x)
                 self.p_y.append(float(V[2]) * self.shape_y)
@@ -214,10 +211,10 @@ class VectorFormatter:
 
     def k_d_tree_test(self, num_neighbors):
 
-        tree = spatial.KDTree(list(zip(self.pos_x, self.pos_y)))  # KDTree positions of features detected
+        tree = spatial.KDTree(list(zip(self.p_x, self.p_y)))  # KDTree positions of features detected
 
         for ii in range(len(self.features)):
-            pts = np.array([self.pos_x[ii], self.pos_y[ii]])  # Coordinates of the point r in fig 5 in paper
+            pts = np.array([self.p_x[ii], self.p_y[ii]])  # Coordinates of the point r in fig 5 in paper
 
             dist_to_neighbor, idx_neighbor = tree.query(pts, k=num_neighbors)
 
@@ -237,8 +234,8 @@ class VectorFormatter:
             pos_x_closest = []
             pos_y_closest = []
 
-            pos_x_base = self.pos_x[idx_neighbor[0]]  # sets up base position
-            pos_y_base = self.pos_y[idx_neighbor[0]]
+            pos_x_base = self.p_x[idx_neighbor[0]]  # sets up base position
+            pos_y_base = self.p_y[idx_neighbor[0]]
 
             dist_to_neighbor = dist_to_neighbor[1:]  # removing the "base" , the focrum of the angle
             idx_neighbor = idx_neighbor[1:]
@@ -249,8 +246,8 @@ class VectorFormatter:
             j = 0
             feature_closest_list = []
             for j in range(len(idx_neighbor)):
-                pos_x_closest.append(self.pos_x[idx_neighbor[j]])
-                pos_y_closest.append(self.pos_y[idx_neighbor[j]])
+                pos_x_closest.append(self.p_x[idx_neighbor[j]])
+                pos_y_closest.append(self.p_y[idx_neighbor[j]])
 
                 feature_closest_list.append(self.feature_class[idx_neighbor[j]])
 
